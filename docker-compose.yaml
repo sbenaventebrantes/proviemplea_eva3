@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      APP_KEY: base64:3pF8dZqfG0WJp7l7w7qg1mZPq9mKf8t4xD0V1n8m6xg=
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: proviemplea
+      DB_USERNAME: proviuser
+      DB_PASSWORD: provipass
+    command: sh -c "php artisan serve --host=0.0.0.0 --port=8000"
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: proviemplea
+      MYSQL_USER: proviuser
+      MYSQL_PASSWORD: provipass
+      MYSQL_ROOT_PASSWORD: rootpass
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

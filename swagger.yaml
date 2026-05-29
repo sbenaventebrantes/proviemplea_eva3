@@ -1,0 +1,553 @@
+openapi: 3.0.3
+info:
+  title: ProviEmplea API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Health
+  - name: Persons
+  - name: Companies
+  - name: Administration
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Check API status
+      responses:
+        '200':
+          description: API active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                message: API ProviEmplea funcionando
+                data:
+                  status: ok
+  /api/persons:
+    get:
+      tags: [Persons]
+      summary: List persons
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonListResponse'
+              example:
+                data:
+                  - id: 1
+                    firstName: Ana
+                    lastName: Perez
+                    email: ana@correo.com
+                    phoneNumber: '999999999'
+                    taxId: '12345678'
+                    validationStatus: pending
+                pagination:
+                  page: 1
+                  size: 10
+                  total: 1
+    post:
+      tags: [Persons]
+      summary: Create person
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonInput'
+            example:
+              firstName: Ana
+              lastName: Perez
+              email: ana@correo.com
+              phoneNumber: '999999999'
+              taxId: '12345678'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro creado correctamente
+                data:
+                  id: 1
+                  firstName: Ana
+                  lastName: Perez
+                  email: ana@correo.com
+                  phoneNumber: '999999999'
+                  taxId: '12345678'
+                  validationStatus: pending
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              example:
+                message: La petición contiene errores
+                errors:
+                  email:
+                    - El campo email ya ha sido tomado.
+  /api/persons/{id}:
+    get:
+      tags: [Persons]
+      summary: Get one person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonDetailResponse'
+        '404':
+          description: Record not found
+    patch:
+      tags: [Persons]
+      summary: Update person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro actualizado correctamente
+        '404':
+          description: Record not found
+    delete:
+      tags: [Persons]
+      summary: Delete person
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+              example:
+                message: Registro eliminado correctamente
+        '404':
+          description: Record not found
+  /api/companies:
+    get:
+      tags: [Companies]
+      summary: List companies
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyListResponse'
+              example:
+                data:
+                  - id: 1
+                    companyName: Demo Company
+                    taxId: '1234567890'
+                    sector: Services
+                    contactName: Mario Lopez
+                    email: contact@company.cl
+                    phoneNumber: '22223333'
+                    validationStatus: pending
+                pagination:
+                  page: 1
+                  size: 10
+                  total: 1
+    post:
+      tags: [Companies]
+      summary: Create company
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+            example:
+              companyName: Demo Company
+              taxId: '1234567890'
+              sector: Services
+              contactName: Mario Lopez
+              email: contact@company.cl
+              phoneNumber: '22223333'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro creado correctamente
+        '422':
+          description: Validation error
+  /api/companies/{id}:
+    get:
+      tags: [Companies]
+      summary: Get one company
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Found
+        '404':
+          description: Record not found
+    patch:
+      tags: [Companies]
+      summary: Update company
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro actualizado correctamente
+        '404':
+          description: Record not found
+    delete:
+      tags: [Companies]
+      summary: Delete company
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+              example:
+                message: Registro eliminado correctamente
+        '404':
+          description: Record not found
+  /api/admin/contacts:
+    get:
+      tags: [Administration]
+      summary: List contacts
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactListResponse'
+    post:
+      tags: [Administration]
+      summary: Create contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInput'
+            example:
+              type: person
+              referenceId: 1
+              fullName: Sofia Benavente
+              email: sofia@example.com
+              phoneNumber: '+56912345678'
+              message: Quiero recibir más información.
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro creado correctamente
+        '404':
+          description: Record not found
+  /api/admin/contacts/{id}/status:
+    patch:
+      tags: [Administration]
+      summary: Update contact status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: attended
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordResponse'
+              example:
+                message: Registro actualizado correctamente
+        '404':
+          description: Record not found
+  /api/admin/statistics:
+    get:
+      tags: [Administration]
+      summary: General statistics
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsResponse'
+              example:
+                data:
+                  persons: 1
+                  companies: 1
+                  contacts: 1
+                  pendingContacts: 1
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+    Person:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        taxId:
+          type: string
+        validationStatus:
+          type: string
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        companyName:
+          type: string
+        taxId:
+          type: string
+        sector:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        validationStatus:
+          type: string
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        referenceId:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+    PersonInput:
+      type: object
+      required: [firstName, lastName, email, taxId]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        taxId:
+          type: string
+    CompanyInput:
+      type: object
+      required: [companyName, taxId, sector, email]
+      properties:
+        companyName:
+          type: string
+        taxId:
+          type: string
+        sector:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+    ContactInput:
+      type: object
+      required: [type, referenceId, fullName, email, message]
+      properties:
+        type:
+          type: string
+        referenceId:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        message:
+          type: string
+    PersonListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    CompanyListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    ContactListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    PersonDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Person'
+    CompanyDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Company'
+    RecordResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Person'
+            - $ref: '#/components/schemas/Company'
+            - $ref: '#/components/schemas/Contact'
+    DeleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    StatisticsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            persons:
+              type: integer
+            companies:
+              type: integer
+            contacts:
+              type: integer
+            pendingContacts:
+              type: integer
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
